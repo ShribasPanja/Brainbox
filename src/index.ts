@@ -1,6 +1,8 @@
 import express from "express";
-import { z } from "zod";
-
+import { signupSchema } from "./zod";
+import { User } from "./db";
+import bcrypt from "bcrypt";
+const saltRound = 10;
 const app = express();
 app.use(express.json());
 app.get("/", (req, res) => {
@@ -11,33 +13,19 @@ app.post("/api/v1/signup", async (req, res) => {
   const password = req.body.password;
   console.log(req.body);
 
-  const signupSchema = z.object({
-    username: z
-      .string()
-      .min(3, { message: "username must be atleast 3 letters long" })
-      .max(10, { message: "username must not be more than 10 letters long" }),
-    password: z
-      .string()
-      .min(8, { message: "minLengthError" })
-      .max(20, { message: "maxLengthError" })
-      .refine((password) => /[A-Z]/.test(password), {
-        message: "uppercaseError",
-      })
-      .refine((password) => /[a-z]/.test(password), {
-        message: "lowercaseError",
-      })
-      .refine((password) => /[0-9]/.test(password), {
-        message: "numberError",
-      })
-      .refine((password) => /[!@#$%^&*]/.test(password), {
-        message: "specialCharacterError",
-      }),
-  });
-
-  if (signupSchema.safeParse(req.body).success) {
-    res.status(200).json({ msg: "success" });
-  } else {
+  if (!signupSchema.safeParse(req.body).success) {
     res.status(411).json({ msg: "wrong input" });
+  }
+  const founduser = await User.findOne({ username: username });
+  if (founduser) {
+    res.status(403).json({ msg: "user already exist" });
+  }
+  const hashedpass=await bcrypt.hash(password, saltRound);
+  try {
+    await User.create({ username: username, password: hashedpass });
+    res.status(200).send({msg: "you signed up"})
+  } catch (error) {
+    console.log("error");
   }
 });
 app.listen(3000);
