@@ -1,6 +1,7 @@
 import express from "express";
 import { signupSchema } from "./zod";
 import { User } from "./db";
+import { validatorMiddleware } from "./middlewares/validator";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
@@ -58,4 +59,8 @@ app.post("/api/v1/signin", async (req, res) => {
     }
   } catch (error) {}
 });
+app.post("/api/v1/content",validatorMiddleware,async (req,res) => {
+  const {link,type,title,tags} = req.body;
+
+})
 app.listen(3000);
