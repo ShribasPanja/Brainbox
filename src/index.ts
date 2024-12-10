@@ -55,12 +55,11 @@ app.post("/api/v1/signin", async (req, res) => {
       const token = jwt.sign(username, `${SECRET}`);
       console.log(token);
       res.status(200).json({ msg: "signed in" });
-      
     }
   } catch (error) {}
 });
-app.post("/api/v1/content",validatorMiddleware,async (req,res) => {
-  const {link,type,title,tags} = req.body;
-
-})
+app.post("/api/v1/content", validatorMiddleware, async (req, res) => {
+  const { link, type, title, tags } = req.body;
+  
+});
 app.listen(3000);

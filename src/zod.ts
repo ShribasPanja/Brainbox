@@ -21,4 +21,3 @@ export const signupSchema = z.object({
       message: "specialCharacterError",
     }),
 });
-module.exports = { signupSchema };
