@@ -15,9 +15,9 @@ const UserSchema = new Schema({
 });
 const ContentSchema = new Schema({
   link: { type: String, required: true, unique: true },
-  type: { type: String, required: true },
+  type: { type: String, required: true, enum: contentTypes },
   title: { type: String, required: true },
-  tags: [{ type: Types.ObjectId, enum: contentTypes, ref: "Tag" }],
+  tags: [{ type: Types.ObjectId, ref: "Tag" }],
   userId: { type: Types.ObjectId, ref: "User", required: true },
 });
 const TagSchema = new Schema({

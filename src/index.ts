@@ -1,15 +1,29 @@
 import express from "express";
 import { signupSchema } from "./zod";
-import { User } from "./db";
+import { Content, User } from "./db";
 import { validatorMiddleware } from "./middlewares/validator";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { Types } from "mongoose";
 dotenv.config();
 const SECRET = process.env.JWT_SECRET;
 const saltRound = 10;
 const app = express();
 app.use(express.json());
+enum ContentTypes {
+  image = "image",
+  video = "video",
+  article = "article",
+  audio = "audio",
+}
+interface ContentType {
+  link: String;
+  type: ContentTypes;
+  title: String;
+  tags: [];
+  userId: Types.ObjectId;
+}
 app.get("/", (req, res) => {
   res.json("hi");
 });
@@ -59,7 +73,18 @@ app.post("/api/v1/signin", async (req, res) => {
   } catch (error) {}
 });
 app.post("/api/v1/content", validatorMiddleware, async (req, res) => {
-  const { link, type, title, tags } = req.body;
-  
+  try {
+    const { link, type, title, tags, userId }: ContentType = req.body;
+    await Content.create({
+      link: link,
+      type: type,
+      title: title,
+      tags: tags,
+      userId: userId,
+    });
+    res.status(200).send({ msg: "content added" });
+  } catch (error) {
+    console.log(error);
+  }
 });
 app.listen(3000);
